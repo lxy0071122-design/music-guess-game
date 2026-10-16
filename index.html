@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>袭击你的歌单-TOP版</title>
+  <style>
+    /* ========== 全局背景 ========== */
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #2b0b3f 0%, #1a0526 100%);
+      overflow: hidden;
+    }
+
+    h1 {
+      font-weight: bold;
+      color: #e8d5ff;
+      font-size: 2.4rem;
+      margin: 0 0 48px 0;
+      text-shadow:
+        0 0 8px rgba(200, 150, 255, 0.8),
+        0 0 18px rgba(180, 120, 255, 0.6),
+        0 0 36px rgba(150, 80, 220, 0.4);
+    }
+
+    .container {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+    }
+
+    button {
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      font-family: inherit;
+    }
+
+    .btn-primary {
+      padding: 14px 44px;
+      font-size: 18px;
+      border: 1px solid rgba(200, 150, 255, 0.6);
+      border-radius: 30px;
+      background: rgba(120, 60, 180, 0.35);
+      color: #ffffff;
+      backdrop-filter: blur(6px);
+      box-shadow:
+        0 0 14px rgba(180, 120, 255, 0.45),
+        inset 0 0 10px rgba(180, 120, 255, 0.2);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      transform: scale(1.06);
+      box-shadow:
+        0 0 26px rgba(180, 120, 255, 0.75),
+        inset 0 0 14px rgba(180, 120, 255, 0.3);
+    }
+
+    .btn-primary:disabled {
+      background: rgba(120, 120, 140, 0.3);
+      border-color: rgba(180, 180, 200, 0.4);
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .btn-ghost {
+      margin-top: 20px;
+      padding: 10px 30px;
+      font-size: 15px;
+      border: 1px solid rgba(200, 150, 255, 0.45);
+      border-radius: 30px;
+      background: transparent;
+      color: #d9b8ff;
+    }
+
+    .btn-ghost:hover {
+      background: rgba(180, 120, 255, 0.12);
+      border-color: rgba(200, 150, 255, 0.7);
+    }
+
+    #feedback {
+      margin-top: 28px;
+      font-size: 16px;
+      color: #c9a7ff;
+      min-height: 24px;
+    }
+
+    /* ========== 答题区 ========== */
+    .quiz-area {
+      display: none;
+      text-align: center;
+    }
+
+    .timer {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #ffe9a8;
+      text-shadow: 0 0 12px rgba(255, 200, 80, 0.65);
+      margin-bottom: 16px;
+      letter-spacing: 2px;
+    }
+
+    .question-info {
+      font-size: 1.4rem;
+      color: #e8d5ff;
+      text-shadow: 0 0 10px rgba(180, 120, 255, 0.6);
+      margin-bottom: 18px;
+    }
+
+    .play-control {
+      margin-bottom: 22px;
+    }
+
+    #playToggleBtn {
+      margin-top: 0;
+      min-width: 80px;
+    }
+
+    .answer-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #answerInput {
+      padding: 10px 16px;
+      border: 1px solid rgba(200, 150, 255, 0.45);
+      border-radius: 24px;
+      background: rgba(20, 6, 35, 0.6);
+      color: #f0e6ff;
+      font-size: 15px;
+      outline: none;
+      width: 240px;
+    }
+
+    #answerInput:focus {
+      border-color: rgba(200, 150, 255, 0.8);
+    }
+
+    #answerInput:disabled {
+      opacity: 0.6;
+    }
+
+    #dontKnowBtn {
+      margin-top: 0;
+    }
+
+    .result-tip {
+      margin-top: 20px;
+      font-size: 16px;
+      min-height: 24px;
+    }
+
+    .result-correct {
+      color: #6ee7a0;
+      text-shadow: 0 0 8px rgba(110, 231, 160, 0.6);
+    }
+
+    .result-wrong {
+      color: #ff9c9c;
+    }
+
+    /* ========== 结算区 ========== */
+    .result-area {
+      display: none;
+      text-align: center;
+    }
+
+    .result-title {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #ffe9a8;
+      text-shadow: 0 0 14px rgba(255, 200, 80, 0.7);
+      margin-bottom: 24px;
+    }
+
+    .result-stat {
+      font-size: 1.1rem;
+      color: #d9b8ff;
+      margin-bottom: 14px;
+    }
+
+    .result-stat span {
+      color: #ffffff;
+      font-weight: bold;
+      text-shadow: 0 0 8px rgba(180, 120, 255, 0.5);
+    }
+
+    #playAgainBtn {
+      margin-top: 0;
+    }
+
+    .result-actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-top: 26px;
+    }
+
+    #backHomeBtn {
+      margin-top: 0;
+    }
+
+    /* ========== 蝴蝶飞舞 ========== */
+    .butterfly {
+      position: fixed;
+      font-size: 2rem;
+      pointer-events: none;
+      z-index: 1;
+      will-change: transform;
+      opacity: 0.85;
+    }
+
+    .butterfly:nth-child(1) { top: 18%; left: 4%;  animation: fly-1 18s linear infinite; }
+    .butterfly:nth-child(2) { top: 72%; left: 86%; animation: fly-2 22s linear infinite; animation-delay: -3s; }
+    .butterfly:nth-child(3) { top: 82%; left: 12%; animation: fly-3 20s linear infinite; animation-delay: -7s; }
+    .butterfly:nth-child(4) { top: 12%; left: 82%; animation: fly-4 25s linear infinite; animation-delay: -12s; }
+    .butterfly:nth-child(5) { top: 88%; left: 48%; animation: fly-5 23s linear infinite; animation-delay: -15s; }
+
+    @keyframes fly-1 {
+      0%   { transform: translate(0, 0) rotate(0deg); }
+      25%  { transform: translate(38vw, -12vh) rotate(18deg); }
+      50%  { transform: translate(72vw, 18vh) rotate(-14deg); }
+      75%  { transform: translate(38vw, -6vh) rotate(22deg); }
+      100% { transform: translate(0, 0) rotate(0deg); }
+    }
+    @keyframes fly-2 {
+      0%   { transform: translate(0, 0) rotate(0deg); }
+      25%  { transform: translate(-34vw, 10vh) rotate(-16deg); }
+      50%  { transform: translate(-68vw, -16vh) rotate(12deg); }
+      75%  { transform: translate(-34vw, 8vh) rotate(-20deg); }
+      100% { transform: translate(0, 0) rotate(0deg); }
+    }
+    @keyframes fly-3 {
+      0%   { transform: translate(0, 0) rotate(0deg); }
+      25%  { transform: translate(20vw, -26vh) rotate(15deg); }
+      50%  { transform: translate(45vw, -8vh) rotate(-12deg); }
+      75%  { transform: translate(20vw, -30vh) rotate(20deg); }
+      100% { transform: translate(0, 0) rotate(0deg); }
+    }
+    @keyframes fly-4 {
+      0%   { transform: translate(0, 0) rotate(0deg); }
+      25%  { transform: translate(-22vw, 24vh) rotate(-18deg); }
+      50%  { transform: translate(-48vw, 8vh) rotate(14deg); }
+      75%  { transform: translate(-22vw, 28vh) rotate(-22deg); }
+      100% { transform: translate(0, 0) rotate(0deg); }
+    }
+    @keyframes fly-5 {
+      0%   { transform: translate(0, 0) rotate(0deg); }
+      25%  { transform: translate(16vw, -22vh) rotate(16deg); }
+      50%  { transform: translate(32vw, -32vh) rotate(-14deg); }
+      75%  { transform: translate(16vw, -20vh) rotate(20deg); }
+      100% { transform: translate(0, 0) rotate(0deg); }
+    }
+
+    /* ========== 模态框（曲库管理面板） ========== */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 2, 20, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      width: 100%;
+      max-width: 560px;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      background: rgba(43, 11, 63, 0.92);
+      border: 1px solid rgba(200, 150, 255, 0.4);
+      border-radius: 14px;
+      box-shadow: 0 0 30px rgba(150, 80, 220, 0.4);
+      overflow: hidden;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid rgba(200, 150, 255, 0.2);
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 1.2rem;
+      color: #e8d5ff;
+      text-shadow: 0 0 8px rgba(180, 120, 255, 0.6);
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(180, 120, 255, 0.2);
+      color: #e8d5ff;
+      font-size: 20px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-close:hover {
+      background: rgba(180, 120, 255, 0.4);
+    }
+
+    .modal-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 20px;
+    }
+
+    .song-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .song-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(200, 150, 255, 0.12);
+    }
+
+    .song-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .song-name {
+      color: #f0e6ff;
+      font-size: 15px;
+      margin-bottom: 2px;
+      word-break: break-all;
+    }
+
+    .song-url {
+      color: #a98dc9;
+      font-size: 12px;
+      word-break: break-all;
+    }
+
+    .song-delete {
+      flex-shrink: 0;
+      padding: 6px 14px;
+      border: 1px solid rgba(255, 120, 120, 0.5);
+      border-radius: 16px;
+      background: transparent;
+      color: #ff9c9c;
+      font-size: 13px;
+    }
+
+    .song-delete:hover {
+      background: rgba(255, 120, 120, 0.15);
+    }
+
+    .modal-footer {
+      display: flex;
+      gap: 8px;
+      padding: 14px 20px;
+      border-top: 1px solid rgba(200, 150, 255, 0.2);
+      flex-wrap: wrap;
+    }
+
+    .modal-footer input {
+      flex: 1;
+      min-width: 120px;
+      padding: 8px 12px;
+      border: 1px solid rgba(200, 150, 255, 0.3);
+      border-radius: 8px;
+      background: rgba(20, 6, 35, 0.6);
+      color: #f0e6ff;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .modal-footer input::placeholder {
+      color: #8a6fa8;
+    }
+
+    .modal-footer input:focus {
+      border-color: rgba(200, 150, 255, 0.7);
+    }
+
+    .btn-add {
+      padding: 8px 18px;
+      border: 1px solid rgba(180, 120, 255, 0.6);
+      border-radius: 8px;
+      background: rgba(120, 60, 180, 0.4);
+      color: #fff;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .btn-add:hover {
+      background: rgba(120, 60, 180, 0.6);
+    }
+
+    .btn-file {
+      padding: 8px 14px;
+      border: 1px solid rgba(180, 120, 255, 0.45);
+      border-radius: 8px;
+      background: transparent;
+      color: #d9b8ff;
+      font-size: 14px;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .btn-file:hover {
+      background: rgba(180, 120, 255, 0.12);
+      border-color: rgba(200, 150, 255, 0.7);
+    }
+
+    .empty-tip {
+      text-align: center;
+      color: #8a6fa8;
+      padding: 20px 0;
+      font-size: 14px;
+    }
+
+    /* ========== 返回首页按钮（统一样式） ========== */
+    .back-home-btn {
+      padding: 8px 16px;
+      border: 1px solid rgba(200, 150, 255, 0.35);
+      border-radius: 20px;
+      background: rgba(60, 20, 90, 0.55);
+      color: #ffffff;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s ease, border-color 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .back-home-btn:hover {
+      background: rgba(90, 35, 130, 0.75);
+      border-color: rgba(200, 150, 255, 0.6);
+    }
+
+    /* 答题页 / 结算页：固定在左上角，不遮挡居中内容 */
+    .back-home-fixed {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 50;
+    }
+
+    /* 曲库管理模态框：返回按钮与标题靠左排列 */
+    .modal-header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="butterfly">🦋</div>
+  <div class="butterfly">🦋</div>
+  <div class="butterfly">🦋</div>
+  <div class="butterfly">🦋</div>
+  <div class="butterfly">🦋</div>
+
+  <div class="container">
+    <h1>袭击你的歌单-TOP版</h1>
+
+    <div class="menu-area" id="menuArea">
+      <button id="startBtn" class="btn-primary">开始游戏</button>
+      <br />
+      <button id="manageBtn" class="btn-ghost">曲库管理</button>
+      <div id="feedback"></div>
+    </div>
+
+    <div class="quiz-area" id="quizArea">
+      <button class="back-home-btn back-home-fixed" id="quizBackBtn">← 返回首页</button>
+      <div class="timer" id="timerEl">0</div>
+      <div class="question-info" id="questionInfo">第 1 / 10 题</div>
+      <div class="play-control">
+        <button id="playToggleBtn" class="btn-ghost">暂停</button>
+      </div>
+      <div class="answer-row">
+        <input type="text" id="answerInput" placeholder="输入歌名，回车提交" autocomplete="off" />
+        <button id="dontKnowBtn" class="btn-ghost">不知道</button>
+      </div>
+      <div class="result-tip" id="resultTip"></div>
+    </div>
+
+    <div class="result-area" id="resultArea">
+      <button class="back-home-btn back-home-fixed" id="resultBackBtn">← 返回首页</button>
+      <div class="result-title">游戏结束</div>
+      <div class="result-stat">总用时：<span id="resultTime">0</span> 秒</div>
+      <div class="result-stat">答对：<span id="resultCorrect">0</span> / <span id="resultTotal">10</span> 题</div>
+      <div class="result-actions">
+        <button id="playAgainBtn" class="btn-primary">再玩一次</button>
+        <button id="backHomeBtn" class="btn-ghost">返回首页</button>
+      </div>
+    </div>
+  </div>
+
+  <audio id="audioPlayer" preload="auto"></audio>
+
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-header-left">
+          <button class="back-home-btn" id="modalBackBtn">← 返回首页</button>
+          <h2>曲库管理</h2>
+        </div>
+        <button class="modal-close" id="modalClose" aria-label="关闭">×</button>
+      </div>
+      <div class="modal-body">
+        <ul class="song-list" id="songList"></ul>
+      </div>
+      <div class="modal-footer">
+        <input type="text" id="songNameInput" placeholder="歌名" />
+        <input type="text" id="songUrlInput" placeholder="音频链接" />
+        <input type="file" id="localFileInput" accept="audio/*" hidden />
+        <button class="btn-file" id="pickFileBtn">选择本地文件</button>
+        <button class="btn-add" id="addSongBtn">添加</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ========== 曲库数据层 ========== */
+    const STORAGE_KEY = "song_library";
+    const QUESTION_COUNT = 10;
+    const NEXT_DELAY = 1000; // 判定后停留多久再跳下一题（毫秒）
+
+    const DEFAULT_SONGS = [
+      { name: "SoundHelix Song 1",  audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+      { name: "SoundHelix Song 2",  audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+      { name: "SoundHelix Song 3",  audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
+      { name: "SoundHelix Song 4",  audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
+      { name: "SoundHelix Song 5",  audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" },
+      { name: "SoundHelix Song 6",  audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3" },
+      { name: "SoundHelix Song 7",  audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3" },
+      { name: "SoundHelix Song 8",  audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" },
+      { name: "SoundHelix Song 9",  audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3" },
+      { name: "SoundHelix Song 10", audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3" },
+    ];
+
+    function loadSongs() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) {
+            // 过滤掉刷新后已失效的 blob: 临时链接（本地文件无法跨刷新保留）
+            const valid = parsed.filter(
+              (song) => song && song.audioUrl && typeof song.audioUrl === "string" && !song.audioUrl.startsWith("blob:")
+            );
+            const removed = parsed.length - valid.length;
+            if (removed > 0) {
+              console.warn(`已移除 ${removed} 首刷新后失效的本地文件歌曲（blob 链接不可跨刷新保留）`);
+              saveSongs(valid); // 同步清理 localStorage
+            }
+            // 清理后为空则回退到默认曲库
+            return valid.length > 0 ? valid : [...DEFAULT_SONGS];
+          }
+        }
+      } catch (e) {
+        console.warn("读取曲库失败，使用默认曲库", e);
+      }
+      return [...DEFAULT_SONGS];
+    }
+
+    function saveSongs(songs) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(songs));
+    }
+
+    let songLibrary = loadSongs();
+
+    /* ========== 抽题逻辑 ========== */
+    // 从曲库随机抽 count 首不重复的歌
+    function pickRandomSongs(library, count) {
+      // 先按 audioUrl 去重：即使曲库里有相同链接的歌，同一局也只出现一次
+      const seen = new Set();
+      const unique = library.filter((song) => {
+        if (seen.has(song.audioUrl)) return false;
+        seen.add(song.audioUrl);
+        return true;
+      });
+
+      // Fisher–Yates 洗牌
+      const shuffled = [...unique];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled.slice(0, count);
+    }
+
+    /* ========== DOM 引用 ========== */
+    const startBtn = document.getElementById("startBtn");
+    const manageBtn = document.getElementById("manageBtn");
+    const feedbackEl = document.getElementById("feedback");
+
+    const menuArea = document.getElementById("menuArea");
+    const quizArea = document.getElementById("quizArea");
+    const timerEl = document.getElementById("timerEl");
+    const questionInfo = document.getElementById("questionInfo");
+    const answerInput = document.getElementById("answerInput");
+    const dontKnowBtn = document.getElementById("dontKnowBtn");
+    const playToggleBtn = document.getElementById("playToggleBtn");
+    const resultTip = document.getElementById("resultTip");
+
+    const resultArea = document.getElementById("resultArea");
+    const resultTimeEl = document.getElementById("resultTime");
+    const resultCorrectEl = document.getElementById("resultCorrect");
+    const resultTotalEl = document.getElementById("resultTotal");
+    const playAgainBtn = document.getElementById("playAgainBtn");
+    const backHomeBtn = document.getElementById("backHomeBtn");
+    const quizBackBtn = document.getElementById("quizBackBtn");
+    const resultBackBtn = document.getElementById("resultBackBtn");
+    const modalBackBtn = document.getElementById("modalBackBtn");
+
+    const audio = document.getElementById("audioPlayer");
+
+    const modalOverlay = document.getElementById("modalOverlay");
+    const modalClose = document.getElementById("modalClose");
+    const songListEl = document.getElementById("songList");
+    const songNameInput = document.getElementById("songNameInput");
+    const songUrlInput = document.getElementById("songUrlInput");
+    const addSongBtn = document.getElementById("addSongBtn");
+    const pickFileBtn = document.getElementById("pickFileBtn");
+    const localFileInput = document.getElementById("localFileInput");
+
+    /* ========== 游戏状态 ========== */
+    let pickedSongs = [];
+    let currentIndex = 0;
+    let quizPhase = "answering"; // 'answering' | 'revealed'
+    let nextTimer = null;         // 判定后跳下一题的定时器
+
+    // 计时与统计
+    let timerInterval = null;     // 实时计时器
+    let startTime = 0;            // 计时开始时间戳
+    let elapsedSeconds = 0;       // 已用时（秒）
+    let correctCount = 0;         // 答对数量
+
+    /* ========== 音频控制 ========== */
+    // 彻底停止当前音频（切题/判定时调用，保证上一题不再播放）
+    function stopAudio() {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+
+    /* ========== 计时器 ========== */
+    // 开始计时：以时间戳为基准，每秒刷新显示
+    function startTimer() {
+      startTime = Date.now();
+      elapsedSeconds = 0;
+      timerEl.textContent = "0";
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+        timerEl.textContent = elapsedSeconds;
+      }, 1000);
+    }
+
+    // 停止计时，并把最终秒数同步到显示
+    function stopTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+      timerEl.textContent = elapsedSeconds;
+    }
+
+    // 播放第 index 题
+    function playQuestion(index) {
+      // 全部答完，结束游戏
+      if (index >= pickedSongs.length) {
+        endGame();
+        return;
+      }
+
+      currentIndex = index;
+      quizPhase = "answering";
+
+      // 第一题播放时开始计时
+      if (index === 0) {
+        startTimer();
+      }
+
+      // 重置答题界面
+      questionInfo.textContent = `第 ${index + 1} / ${pickedSongs.length} 题`;
+      resultTip.textContent = "";
+      resultTip.className = "result-tip";
+      answerInput.value = "";
+      answerInput.disabled = false;
+      answerInput.focus();
+
+      // 清除可能残留的下一题定时器
+      if (nextTimer) {
+        clearTimeout(nextTimer);
+        nextTimer = null;
+      }
+
+      // 停掉上一题音频，保证每首歌只播一次
+      stopAudio();
+
+      // 切题时重置暂停/继续按钮为「暂停」（新题从头播放）
+      playToggleBtn.textContent = "暂停";
+      playToggleBtn.disabled = false;
+
+      const song = pickedSongs[index];
+      audio.src = song.audioUrl;
+      audio.currentTime = 0;
+
+      const playPromise = audio.play();
+      if (playPromise) {
+        playPromise.catch((e) => console.warn("音频播放失败：", e));
+      }
+      // 不限制播放时长，播到自然结束（audio 'ended' 事件会自动停止）
+    }
+
+    /* ========== 暂停 / 继续 ========== */
+    // 暂停保留播放位置，继续从暂停处接着播；不影响答题输入与「不知道」
+    function togglePlay() {
+      if (audio.paused) {
+        const p = audio.play();
+        if (p) p.catch((e) => console.warn("继续播放失败：", e));
+        playToggleBtn.textContent = "暂停";
+      } else {
+        audio.pause();
+        playToggleBtn.textContent = "继续";
+      }
+    }
+
+    /* ========== 答题判定 ========== */
+    // 规范化：转小写 + 去除所有空白
+    function normalize(str) {
+      return String(str).toLowerCase().replace(/\s+/g, "");
+    }
+
+    // 模糊匹配：忽略大小写和空格，输入包含歌名 或 歌名包含输入 都算对
+    function isAnswerCorrect(input, answer) {
+      const i = normalize(input);
+      const a = normalize(answer);
+      if (!i || !a) return false;
+      return i.includes(a) || a.includes(i);
+    }
+
+    // 提交答案
+    function submitAnswer() {
+      if (quizPhase !== "answering") return; // 已判定过，忽略
+      const input = answerInput.value.trim();
+      if (!input) return;
+
+      const song = pickedSongs[currentIndex];
+      const correct = isAnswerCorrect(input, song.name);
+
+      quizPhase = "revealed";
+      answerInput.disabled = true;
+      stopAudio(); // 提交后立即停止音频
+
+      if (correct) {
+        correctCount++;
+        resultTip.textContent = "正确";
+        resultTip.className = "result-tip result-correct";
+      } else {
+        resultTip.textContent = "错误";
+        resultTip.className = "result-tip result-wrong";
+      }
+
+      scheduleNext();
+    }
+
+    // 不知道：停止音频，显示正确答案，算答错
+    function dontKnow() {
+      if (quizPhase !== "answering") return;
+      const song = pickedSongs[currentIndex];
+
+      quizPhase = "revealed";
+      answerInput.disabled = true;
+      stopAudio();
+
+      resultTip.textContent = `正确答案：${song.name}`;
+      resultTip.className = "result-tip result-wrong";
+
+      scheduleNext();
+    }
+
+    // NEXT_DELAY 毫秒后进入下一题
+    function scheduleNext() {
+      // 最后一题提交后立即停止计时
+      const isLast = currentIndex + 1 >= pickedSongs.length;
+      if (isLast) {
+        stopTimer();
+      }
+
+      if (nextTimer) clearTimeout(nextTimer);
+      nextTimer = setTimeout(() => {
+        playQuestion(currentIndex + 1);
+      }, NEXT_DELAY);
+    }
+
+    // 游戏结束
+    function endGame() {
+      stopAudio();
+      stopTimer();
+      if (nextTimer) {
+        clearTimeout(nextTimer);
+        nextTimer = null;
+      }
+
+      quizArea.style.display = "none";
+      resultArea.style.display = "block";
+      resultTimeEl.textContent = elapsedSeconds;
+      resultCorrectEl.textContent = correctCount;
+      resultTotalEl.textContent = pickedSongs.length;
+    }
+
+    /* ========== 音频事件 ========== */
+    // 音频加载失败提示
+    audio.addEventListener("error", () => {
+      if (quizPhase === "answering") {
+        resultTip.textContent = "音频加载失败，请检查链接";
+        resultTip.className = "result-tip result-wrong";
+      }
+    });
+
+    // 音频自然播完：更新按钮状态，禁止重播（每首歌只播一次）
+    audio.addEventListener("ended", () => {
+      playToggleBtn.textContent = "已结束";
+      playToggleBtn.disabled = true;
+    });
+
+    /* ========== 开始游戏 ========== */
+    // 抽题 + 重置状态 + 进入答题
+    function startGame() {
+      if (songLibrary.length === 0) {
+        feedbackEl.textContent = "曲库为空，请先在曲库管理中添加歌曲";
+        return false;
+      }
+
+      // 清理上一局残留：停止音频、计时器、下一题定时器
+      stopAudio();
+      stopTimer();
+      if (nextTimer) {
+        clearTimeout(nextTimer);
+        nextTimer = null;
+      }
+
+      // 重置统计状态
+      correctCount = 0;
+      const count = Math.min(QUESTION_COUNT, songLibrary.length);
+      pickedSongs = pickRandomSongs(songLibrary, count);
+
+      console.log(`已抽取的 ${count} 首歌：`);
+      pickedSongs.forEach((song, i) => {
+        console.log(`${i + 1}. ${song.name}`);
+      });
+
+      feedbackEl.textContent = "";
+      menuArea.style.display = "none";
+      resultArea.style.display = "none";
+      quizArea.style.display = "block";
+
+      playQuestion(0);
+      return true;
+    }
+
+    startBtn.addEventListener("click", () => {
+      startGame();
+    });
+
+    // 再玩一次：重置并直接开始新一局
+    playAgainBtn.addEventListener("click", () => {
+      startGame();
+    });
+
+    // 回车提交答案
+    answerInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        submitAnswer();
+      }
+    });
+
+    // 不知道按钮
+    dontKnowBtn.addEventListener("click", dontKnow);
+
+    // 暂停 / 继续按钮
+    playToggleBtn.addEventListener("click", togglePlay);
+
+    // 统一返回首页：停止音频/计时器/下一题定时器，隐藏所有子界面，回到启动页
+    // 曲库数据已通过增删操作持久化到 localStorage，此处无需额外处理
+    function goHome() {
+      stopAudio();
+      stopTimer();
+      if (nextTimer) {
+        clearTimeout(nextTimer);
+        nextTimer = null;
+      }
+      resultArea.style.display = "none";
+      quizArea.style.display = "none";
+      modalOverlay.classList.remove("active");
+      menuArea.style.display = "block";
+      feedbackEl.textContent = "";
+    }
+
+    backHomeBtn.addEventListener("click", goHome);
+
+    // 答题页左上角返回：立即停止音频与计时，成绩作废，回到首页
+    quizBackBtn.addEventListener("click", goHome);
+
+    // 结算页左上角返回
+    resultBackBtn.addEventListener("click", goHome);
+
+    // 曲库管理页左上角返回：关闭模态框，曲库数据已持久化自然保留
+    modalBackBtn.addEventListener("click", goHome);
+
+    /* ========== 曲库管理：渲染列表 ========== */
+    function renderSongList() {
+      songListEl.innerHTML = "";
+      if (songLibrary.length === 0) {
+        songListEl.innerHTML = '<li class="empty-tip">曲库为空，请在下方添加歌曲</li>';
+        return;
+      }
+      songLibrary.forEach((song, index) => {
+        const li = document.createElement("li");
+        li.className = "song-item";
+
+        const info = document.createElement("div");
+        info.className = "song-info";
+        info.innerHTML = `<div class="song-name">${escapeHtml(song.name)}</div><div class="song-url">${escapeHtml(song.audioUrl)}</div>`;
+
+        const delBtn = document.createElement("button");
+        delBtn.className = "song-delete";
+        delBtn.textContent = "删除";
+        delBtn.addEventListener("click", () => deleteSong(index));
+
+        li.appendChild(info);
+        li.appendChild(delBtn);
+        songListEl.appendChild(li);
+      });
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement("div");
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function addSong() {
+      const name = songNameInput.value.trim();
+      const url = songUrlInput.value.trim();
+      if (!name || !url) {
+        alert("请填写歌名和音频链接");
+        return;
+      }
+      songLibrary.push({ name, audioUrl: url });
+      saveSongs(songLibrary);
+      renderSongList();
+      songNameInput.value = "";
+      songUrlInput.value = "";
+      songNameInput.focus();
+    }
+
+    function deleteSong(index) {
+      songLibrary.splice(index, 1);
+      saveSongs(songLibrary);
+      renderSongList();
+    }
+
+    addSongBtn.addEventListener("click", addSong);
+    songUrlInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") addSong();
+    });
+
+    // 选择本地文件：用 URL.createObjectURL 生成临时链接，自动填入歌名和链接
+    // 注意：blob URL 是临时的，刷新页面后会失效，需重新选择文件
+    pickFileBtn.addEventListener("click", () => localFileInput.click());
+
+    localFileInput.addEventListener("change", (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      // 只允许音频文件
+      if (!file.type.startsWith("audio/")) {
+        alert("请选择音频文件（mp3 / wav / ogg 等）");
+        localFileInput.value = "";
+        return;
+      }
+
+      const blobUrl = URL.createObjectURL(file);
+      // 歌名默认取文件名去掉扩展名，用户可再编辑
+      const defaultName = file.name.replace(/\.[^.]+$/, "");
+
+      songNameInput.value = defaultName;
+      songUrlInput.value = blobUrl;
+
+      // 重置 input.value，允许重复选择同一个文件
+      localFileInput.value = "";
+    });
+
+    /* ========== 模态框打开 / 关闭 ========== */
+    function openModal() {
+      renderSongList();
+      modalOverlay.classList.add("active");
+    }
+
+    function closeModal() {
+      modalOverlay.classList.remove("active");
+    }
+
+    manageBtn.addEventListener("click", openModal);
+    modalClose.addEventListener("click", closeModal);
+    modalOverlay.addEventListener("click", (e) => {
+      if (e.target === modalOverlay) closeModal();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && modalOverlay.classList.contains("active")) closeModal();
+    });
+  </script>
+</body>
+</html>
